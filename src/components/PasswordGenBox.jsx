@@ -87,10 +87,10 @@ function PasswordGenBox() {
         <h2 className="text-center text-2xl font-semibold">
           Password Generator
         </h2>
-        <div className="w-full flex gap-4 items-center bg-[#24232A] px-6 py-2 text-2xl">
+        <div className="w-full flex gap-4 items-center justify-center bg-[#24232A] px-6 py-2 text-2xl">
           <input
             type="text"
-            className="flex-grow min-h-[2rem] overflow-x-hidden bg-inherit outline-none border-none"
+            className="flex-grow min-h-[2rem] max-w-[80%] sm:max-w-[100%] overflow-x-hidden bg-inherit outline-none border-none"
             readOnly
             value={password}
             placeholder="Please select at least one option!"
