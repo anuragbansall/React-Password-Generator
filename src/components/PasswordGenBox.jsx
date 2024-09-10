@@ -62,10 +62,10 @@ function PasswordGenBox() {
   const notify = () => toast.success("Copied to Clipboard !");
 
   const handleCopyPassword = useCallback(() => {
-    passwordRef.current.select();
-    document.execCommand("copy");
+    passwordRef.current?.select()
+    window.navigator.clipboard.writeText(password)
 
-    notify()
+    password && notify()
   }, [password])
   
   
