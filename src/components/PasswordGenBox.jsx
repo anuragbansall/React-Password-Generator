@@ -1,5 +1,7 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FaCopy } from "react-icons/fa";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function PasswordGenBox() {
   const [password, setPassword] = useState("");
@@ -8,6 +10,8 @@ function PasswordGenBox() {
   const [isSymbolIncluded, SetIsSymbolIncluded] = useState(false);
   const [isUppercaseLetterIncluded, SetIsUppercaseLetterIncluded] = useState(true);
   const [isLowerCaseLetterIncluded, SetIsLowerCaseLetterIncluded] = useState(true);
+
+  const passwordRef = useRef(null)
 
   const handleLengthChange = (event) => {
     setLength(event.target.value);
@@ -19,23 +23,23 @@ function PasswordGenBox() {
     } else if (event.target.id === "includeSymbols") {
       SetIsSymbolIncluded((prevVal) => !prevVal);
     } else if (event.target.id === "includeLowercaseLetters") {
-        SetIsLowerCaseLetterIncluded((prevVal) => !prevVal);
-      } else if (event.target.id === "includeUppercaseLetters") {
-        SetIsUppercaseLetterIncluded((prevVal) => !prevVal);
-      }
+      SetIsLowerCaseLetterIncluded((prevVal) => !prevVal);
+    } else if (event.target.id === "includeUppercaseLetters") {
+      SetIsUppercaseLetterIncluded((prevVal) => !prevVal);
+    }
   };
 
   const generatePassword = useCallback(
     (length) => {
       let password = "";
       let characters = "";
-      if(isLowerCaseLetterIncluded) characters += "abcdefghijklmnopqrstuvwxyz"
-      if(isUppercaseLetterIncluded) characters += "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+      if (isLowerCaseLetterIncluded) characters += "abcdefghijklmnopqrstuvwxyz";
+      if (isUppercaseLetterIncluded) characters += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
       if (isNumberIncluded) characters += "123456789";
       if (isSymbolIncluded) characters += "!@#$%^&*()_+";
 
       if (characters.length === 0) {
-        return "Please select at least one option!";
+        return "";
       }
 
       for (let i = 0; i < length; i++) {
@@ -45,23 +49,54 @@ function PasswordGenBox() {
 
       return password;
     },
-    [length, isNumberIncluded, isSymbolIncluded, isLowerCaseLetterIncluded, isUppercaseLetterIncluded]
+    [
+      length,
+      isNumberIncluded,
+      isSymbolIncluded,
+      isLowerCaseLetterIncluded,
+      isUppercaseLetterIncluded,
+      setPassword
+    ]
   );
 
+  const notify = () => toast.success("Copied to Clipboard !");
+
+  const handleCopyPassword = useCallback(() => {
+    passwordRef.current.select();
+    document.execCommand("copy");
+
+    notify()
+  }, [password])
+  
+  
   useEffect(
     () => setPassword(() => generatePassword(length)),
-    [length, isNumberIncluded, isSymbolIncluded, isLowerCaseLetterIncluded, isUppercaseLetterIncluded]
+    [
+      length,
+      isNumberIncluded,
+      isSymbolIncluded,
+      isLowerCaseLetterIncluded,
+      isUppercaseLetterIncluded,
+    ]
   );
 
   return (
     <div className="min-h-screen flex gap-4 justify-center items-center p-8">
+      <ToastContainer autoClose={1000} />
       <div className="w-[30rem] max-w-full flex flex-col gap-4 text-zinc-400">
         <h2 className="text-center text-2xl font-semibold">
           Password Generator
         </h2>
-        <div className="w-full flex items-center bg-[#24232A] px-6 py-2 text-2xl">
-          <div className="flex-grow min-h-[2rem]">{password}</div>
-          <span className="cursor-pointer">
+        <div className="w-full flex gap-4 items-center bg-[#24232A] px-6 py-2 text-2xl">
+          <input
+            type="text"
+            className="flex-grow min-h-[2rem] overflow-x-hidden bg-inherit outline-none border-none"
+            readOnly
+            value={password}
+            placeholder="Please select at least one option!"
+            ref={passwordRef}
+          />
+          <span className="cursor-pointer" onClick={handleCopyPassword}>
             <FaCopy />
           </span>
         </div>
@@ -73,8 +108,8 @@ function PasswordGenBox() {
           <input
             type="range"
             className="w-full cursor-pointer"
-            min={8}
-            max={20}
+            min={1}
+            max={40}
             step={1}
             value={length}
             onChange={handleLengthChange}
@@ -107,7 +142,6 @@ function PasswordGenBox() {
                   type="checkbox"
                   id={item.id}
                   className="size-4 cursor-pointer"
-                  value={item.isIncluded}
                   checked={item.isIncluded}
                   onChange={handleIsIncluded}
                 />
